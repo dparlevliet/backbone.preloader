@@ -4,23 +4,6 @@
  * @author David Parlevliet
  * @version 20130113
  * @preserve Copyright 2013 David Parlevliet.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  * 
  * Preloader
  * =========
@@ -147,12 +130,12 @@ var Preloader = _.extend({
    * When preloading is complete
    */
   complete: function() {
-    clearTimeout(this.timer);
     this.trigger('complete', true);
     if (!this.untrigger) return;
+    clearTimeout(this.timer);
+    this.off('timeout');
     this.off('complete');
     this.off('loaded');
-    this.off('timeout');
   },
   /**
    * Handles errors thrown from instances and calls other error triggers for the
@@ -169,7 +152,7 @@ var Preloader = _.extend({
    * frustration.
    */
   timedout: function() {
-    if (this.loaded!=this.loading)
+    if (this.loaded<this.loading)
       this.trigger('timeout');
     this.trigger('complete', false);
   }
