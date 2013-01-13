@@ -117,8 +117,8 @@ var Preloader = _.extend({
       this.records[subject.typeOf].status = true;
       this.loaded += 1;
     }
-    this.trigger('loaded', subject, jqXHR, response);
-    this.trigger(subject.typeOf+':loaded', subject, jqXHR, response);
+    this.trigger('loaded', subject, results, jqXHR));
+    this.trigger(subject.typeOf+':loaded', subject, results, jqXHR));
     if (this.loaded>=this.loading)
       this.complete();
     this.load_next();
