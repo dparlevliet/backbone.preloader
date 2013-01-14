@@ -11,13 +11,6 @@ Configuration
 Default <tt>10</tt>. Number of seconds to wait before declaring the preload
 a failure and triggering a <tt>timeout</tt> event
 
-###### Preloader.untrigger
-Default <tt>true</tt>. If true this.off() events will be called. This is
-required if you are using <a href="https://github.com/ggozad/Backbone.cachingSync">Backbone.cachingSync</a>, 
-because 'sync' will be triggered twice -- Once when the data is 
-successfully loaded from cache, and then once more when it is successfully
-pulled from the server.
-
 ###### Preloader.parallel
 Default <tt>true</tt>. If <tt>true</tt> then preloader will send <tt>fetch()</tt> attempts for
 all instances at startup. Otherwise, if <tt>false</tt>, it will attempt to call them in
@@ -63,6 +56,8 @@ Trigger Events
 __variable__:loading   - called when fetch() is called.
 __variable__:loaded    - called when a variable sync is returned.
 __variable__:error     - called with variable error is returned.
+__variable__:loading   - called when a second 'sync' trigger is returned by __variable__. Useful for when 
+                         using Backbone.cachingSync to know when the server sync is complete.
 loaded                 - called when any loaded event is triggered.
 error                  - called when any variable error is returned.
 complete               - called when all variables are loaded.
