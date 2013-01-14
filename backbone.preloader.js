@@ -36,13 +36,6 @@ var Preloader = _.extend({
   /** false to our fetch requests one at a time or true for all at once. */
   parallel    : true,
   /**
-   * If true this.off() events will be called. This is required if you are using
-   * Backbone.cachingSync, because 'sync' will be triggered twice -- Once when
-   * the data is successfully loaded from cache, and then once more when it is
-   * successfully pulled from the server.
-   */
-  untrigger   : true,
-  /**
    * Backbone.Events overrides this and becomes a hook for capturing events.
    * Events List:
    * <ul>
@@ -106,30 +99,32 @@ var Preloader = _.extend({
    * up and fire other events.
    */
   load_complete: function(subject, results, jqXHR) {
-    if (subject.typeOf in this.records) {
-      this.records[subject.typeOf].status = true;
-      this.loaded += 1;
+    if (this.records[subject.typeOf].status === true) {
+      this.trigger(subject.typeOf+':sync');
+      subject.off('sync');
+      subject.off(subject.typeOf+':sync');
+      return;
     }
+    this.records[subject.typeOf].status = true;
+    this.loaded += 1;
     this.trigger('loaded', subject, results, jqXHR);
     this.trigger(subject.typeOf+':loaded', subject, results, jqXHR);
-    if (this.loaded>=this.loading)
-      this.complete();
     this.load_next();
-    if (!this.untrigger) return;
-    subject.off('sync');
+    subject.off('error');
     this.off(subject.typeOf+':loaded');
     this.off(subject.typeOf+':loading');
+    if (this.loaded>=this.loading)
+      this.complete();
   },
   /**
    * When preloading is complete
    */
   complete: function() {
-    this.trigger('complete', true);
-    if (!this.untrigger) return;
+    this.trigger('complete');
     clearTimeout(this.timer);
     this.off('timeout');
-    this.off('complete');
     this.off('loaded');
+    this.off('complete');
   },
   /**
    * Handles errors thrown from instances and calls other error triggers for the
