@@ -4,25 +4,17 @@
  * @author David Parlevliet
  * @version 20130113
  * @preserve Copyright 2013 David Parlevliet.
- * 
+ *
  * Preloader
  * =========
  * Preloads model/collection constants. These models are the most common objects
  * required for views to function without the need to poll the server. For this
  * to function correctly, every constant MUST have the typeOf variable
- * predefined and matching the constant name.
+ * and matching the constant name. typeOf will be assigned on start();
  *
  * These objects should be attached to a Backbone caching plugin such as to save
  * load time for the end user. Backbone.cachingSync is recommended;
  * https://github.com/ggozad/Backbone.cachingSync
- *
- * Example:
- *   var Foo = Backbone.Collection.extend({
- *     typeOf: 'Foo',
- *     url: '/somewhere/',
- *     model: Bar,
- *     sync: Backbone.cachingSync(Backbone.sync, 'Foo')
- *   });
  *
  * Example Preloader Usage:
  *  Preloader.instances = {
@@ -51,7 +43,7 @@ var Preloader = _.extend({
    */
   untrigger   : true,
   /**
-   * Backbone.Events overrides this and becomes a hook for capturing events. 
+   * Backbone.Events overrides this and becomes a hook for capturing events.
    * Events List:
    * <ul>
    * <li>__variable__:loading - called when fetch() is called.</li>
@@ -79,8 +71,8 @@ var Preloader = _.extend({
     this.records      = {};
     for (var key in this.instances) {
       this.records[key] = {
-        'destination': key,
-        'source': this.instances[key],
+        'destination': this.instances[key],
+        'source': key,
         'status': false
       };
       this.loading += 1;
@@ -98,6 +90,7 @@ var Preloader = _.extend({
       if (this.records[key].status===false) {
         window[this.records[key].destination] = new window[key]();
         var model = window[this.records[key].destination];
+        model.typeOf = key;
         model.on('sync', this.load_complete, this);
         model.on('error', this.error, this);
         this.trigger(key+':loading');
@@ -117,12 +110,13 @@ var Preloader = _.extend({
       this.records[subject.typeOf].status = true;
       this.loaded += 1;
     }
-    this.trigger('loaded', subject, results, jqXHR));
-    this.trigger(subject.typeOf+':loaded', subject, results, jqXHR));
+    this.trigger('loaded', subject, results, jqXHR);
+    this.trigger(subject.typeOf+':loaded', subject, results, jqXHR);
     if (this.loaded>=this.loading)
       this.complete();
     this.load_next();
     if (!this.untrigger) return;
+    subject.off('sync');
     this.off(subject.typeOf+':loaded');
     this.off(subject.typeOf+':loading');
   },
